@@ -1,0 +1,22 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using Paperless.Models;
+
+namespace Paperless.Controllers
+{
+    [ApiController]
+    [Route("[controller]")]
+    public class DocumentController : ControllerBase
+    {
+        [HttpGet]
+        public IActionResult GetAll()
+        {
+            return Ok(new[] { new Document(1, "Sample Doc", "Sample Author" ) });
+        }
+
+        [HttpPost]
+        public IActionResult Create([FromBody] Document doc)
+        {
+            return CreatedAtAction(nameof(GetAll), new { id = doc.Id }, doc);
+        }
+    }
+}
