@@ -1,0 +1,29 @@
+services:
+  rest:
+    build:
+      context: .
+      dockerfile: Paperless/Dockerfile
+    container_name: paperless-rest
+    ports:
+      - "8081:8081"
+    environment:
+      - ASPNETCORE_URLS=http://+:8081
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=paperless;Username=paperless;Password=secret
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15
+    container_name: paperless-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: paperless
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:

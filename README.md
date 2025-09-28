@@ -1,1 +1,5 @@
-Currently figuring out how ASP.NET Core works.
+# Added a REST Server with a minimal API and Swagger
+
+# Added a DAL with Entity Framework Core and SQL Server
+
+# Added a Unittesting Project that uses NUnit and NSubstitute
