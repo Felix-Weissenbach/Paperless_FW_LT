@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Paperless
 {
-    public class Program // Note: swagger will be available at http://localhost:8081/swagger/index.htmls
+    public class Program // Note: swagger will be available at http://localhost:8081/swagger/index.html
     {
         public static void Main(string[] args)
         {
