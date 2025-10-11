@@ -10,7 +10,7 @@ namespace Paperless.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            return Ok(new[] { new DocumentDTO(1, "Sample Doc", "Sample Author" ) });
+            return Ok(new[] { new DocumentDTO(new Guid(), "Sample Doc", "Sample Author" ) });
         }
 
         [HttpPost]

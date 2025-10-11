@@ -2,21 +2,23 @@
 {
     public class DocumentDTO
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string Title { get; set; }
-        public List<string> Authors { get; set; }
+        public string Content { get; set; }
 
-        public DocumentDTO(int id, string title, string author)
+        public DocumentDTO(string title, string content)
+        {
+            Id = new Guid();
+            Title = title;
+            Content = content;
+        }
+        public DocumentDTO(Guid id, string title, string content)
         {
             Id = id;
             Title = title;
-            Authors = new List<string> { author };
+            Content = content;
         }
-        public DocumentDTO(int id, string title, List<string> authors)
-        {
-            Id = id;
-            Title = title;
-            Authors = authors;
-        }
+
+        public DocumentDTO() : this(string.Empty, string.Empty) { }
     }
 }

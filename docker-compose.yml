@@ -25,5 +25,15 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
 
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+    container_name: paperless-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - rest
+
 volumes:
   db_data:
