@@ -12,7 +12,7 @@ using Paperless.DAL;
 namespace Paperless.Migrations
 {
     [DbContext(typeof(PaperlessDbContext))]
-    [Migration("20250928124253_InitialCreate")]
+    [Migration("20251012120513_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -27,15 +27,9 @@ namespace Paperless.Migrations
 
             modelBuilder.Entity("Paperless.Models.Document", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Author")
-                        .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Content")
                         .IsRequired()
@@ -50,7 +44,7 @@ namespace Paperless.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Documents");
+                    b.ToTable("documents");
                 });
 #pragma warning restore 612, 618
         }

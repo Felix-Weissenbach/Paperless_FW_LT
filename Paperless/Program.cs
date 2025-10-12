@@ -21,6 +21,12 @@ namespace Paperless
 
             var app = builder.Build();
 
+            using (var scope = app.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<DAL.PaperlessDbContext>();
+                dbContext.Database.Migrate(); // Apply any pending migrations
+            }
+
             // Configure the HTTP request pipeline.
             app.UseSwagger();
             app.UseSwaggerUI();
