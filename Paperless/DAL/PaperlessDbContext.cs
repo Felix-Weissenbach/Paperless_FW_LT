@@ -9,7 +9,6 @@ namespace Paperless.DAL
         {
         }
 
-        //TODO: database is scuffed because of changing id from int to guid, fix it; also button in frontend gets a 200 but nothing is added to db ???
         protected override void OnModelCreating(ModelBuilder modelBuilder) 
         {
             foreach (var entity in modelBuilder.Model.GetEntityTypes())
