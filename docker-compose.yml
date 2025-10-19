@@ -9,8 +9,15 @@ services:
     environment:
       - ASPNETCORE_URLS=http://+:8081
       - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=paperless;Username=postgres;Password=postgres
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Username=user
+      - RabbitMQ__Password=password
+      - RabbitMQ__Queue=ocr_queue
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
 
   db:
     image: postgres:15
@@ -24,6 +31,11 @@ services:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      timeout: 2s
+      retries: 20
 
   frontend:
     build:
@@ -35,5 +47,31 @@ services:
     depends_on:
       - rest
 
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: paperless-rabbitmq
+    ports:
+      - "5672:5672"     # RabbitMQ main connection
+      - "15672:15672"   # Management UI (http://localhost:15672)
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+  ocr-worker:
+    build:
+      context: Paperless/OCRWorker
+    container_name: paperless-ocr-worker
+    depends_on:
+      - rabbitmq
+    environment:
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Username=user
+      - RabbitMQ__Password=password
+      - RabbitMQ__Queue=ocr_queue
+    restart: unless-stopped
+
 volumes:
   db_data:
+  rabbitmq_data:

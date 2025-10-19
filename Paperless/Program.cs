@@ -38,6 +38,9 @@ namespace Paperless
 
             app.MapControllers();
 
+            var logDir = Path.Combine(AppContext.BaseDirectory, "Logging"); //ensure logging directory exists
+            Directory.CreateDirectory(logDir);
+
             app.Run();
         }
     }
