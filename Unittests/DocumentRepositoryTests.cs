@@ -17,7 +17,7 @@ namespace Unittests
             using var context = new PaperlessDbContext(options);
             var repo = new DocumentRepository(context);
 
-            await repo.AddAsync(new Document { Title = "Test Doc" });
+            await repo.AddAsync(new Document());
 
             Assert.That(await context.Documents.CountAsync(), Is.EqualTo(1));
         }

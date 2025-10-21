@@ -4,14 +4,20 @@ namespace Paperless.Models
 {
     public class Document
     {
-        public Document()
+        public Document() { }
+        public Document(DocumentDTO dto)
         {
-            CreatedAt = DateTime.UtcNow;
+            Id = dto.Id;
+            FileName = dto.FileName;
+            StoragePath = dto.StoragePath;
+            FileSize = dto.FileSize;
+            UploadedAt = dto.UploadedAt;
         }
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
-        public string Title { get; set; } = string.Empty;
-        public string Content { get; set; } = string.Empty;
-        public DateTime CreatedAt { get; set; }
+        public string FileName { get; set; } = string.Empty;
+        public string? StoragePath { get; set; } // might be useful in case of duplicate file names
+        public long FileSize { get; set; }
+        public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
     }
 }

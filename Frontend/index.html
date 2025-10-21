@@ -7,9 +7,16 @@
 </head>
 <body>
     <h1>Beautiful Paperless Frontend</h1>
-    
-    <button id="createBtn">Create Example Document</button>
+
+    <form id="uploadForm">
+        <input type="file" id="fileInput" name="file" accept=".pdf" required />
+        <button type="submit">Upload Document</button>
+    </form>
+
     <div id="status"></div>
+
+    <h2>Current Documents</h2>
+    <div id="documentsList"></div>
 
     <script src="app.js"></script>
 </body>

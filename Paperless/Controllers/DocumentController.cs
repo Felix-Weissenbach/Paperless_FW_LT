@@ -30,20 +30,18 @@ namespace Paperless.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] DocumentDTO doc)
         {
+            if(doc == null)
+                return BadRequest("Document data is required.");
+
             if (doc.Id == Guid.Empty)
                 doc.Id = Guid.NewGuid();
 
-            var newDoc = new Document
-            {
-                Id = doc.Id,
-                Title = doc.Title,
-                Content = doc.Content
-            };
+            var newDoc = new Document(doc);
 
             try
             {
                 _context.Documents.Add(newDoc);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 _logger.Info($"Document created with ID: {newDoc.Id}");
             }
             catch (Exception ex)
@@ -101,7 +99,7 @@ namespace Paperless.Controllers
                 return StatusCode(500, "Error publishing message to RabbitMQ.");
             }
 
-            return CreatedAtAction(nameof(GetAll), new { id = doc.Id }, doc);
+            return CreatedAtAction(nameof(GetAll), new { id = newDoc.Id }, newDoc);
         }
     }
 }

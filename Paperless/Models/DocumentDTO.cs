@@ -3,22 +3,15 @@
     public class DocumentDTO
     {
         public Guid Id { get; set; }
-        public string Title { get; set; }
-        public string Content { get; set; }
+        public string FileName { get; set; } = string.Empty;
+        public string StoragePath { get; set; } = string.Empty;
+        public long FileSize { get; set; }
+        public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
 
-        public DocumentDTO(string title, string content)
+        public DocumentDTO()
         {
             Id = new Guid();
-            Title = title;
-            Content = content;
-        }
-        public DocumentDTO(Guid id, string title, string content)
-        {
-            Id = id;
-            Title = title;
-            Content = content;
-        }
 
-        public DocumentDTO() : this(string.Empty, string.Empty) { }
+        }
     }
 }

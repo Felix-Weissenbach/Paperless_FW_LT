@@ -1,12 +1,29 @@
-﻿body
-{
+﻿body {
     font-family: Arial, sans-serif;
     padding: 20px;
 }
 
-button
-{
-    padding: 10px 15px;
-    font-size: 16px;
+button {
     cursor: pointer;
+}
+
+input[type="file"] {
+    cursor: pointer;
+}
+
+/* Table styling */
+#documentsList table {
+    border-collapse: collapse; /* merge borders nicely */
+    width: 100%;
+    margin-top: 10px;
+}
+
+#documentsList th, #documentsList td {
+    border: 1px solid #000; /* black border */
+    padding: 6px 10px;
+    text-align: left;
+}
+
+#documentsList th {
+    background-color: #f2f2f2; /* light gray header */
 }

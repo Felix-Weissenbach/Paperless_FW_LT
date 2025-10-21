@@ -13,6 +13,8 @@ services:
       - RabbitMQ__Username=user
       - RabbitMQ__Password=password
       - RabbitMQ__Queue=ocr_queue
+    volumes:
+      - ./logs:/logs
     depends_on:
       db:
         condition: service_healthy
@@ -36,6 +38,15 @@ services:
       interval: 2s
       timeout: 2s
       retries: 20
+
+  adminer:
+    image: adminer
+    container_name: paperless-adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
 
   frontend:
     build:
@@ -75,3 +86,4 @@ services:
 volumes:
   db_data:
   rabbitmq_data:
+    
