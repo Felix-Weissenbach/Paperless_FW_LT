@@ -60,20 +60,21 @@ document.getElementById("uploadForm").addEventListener("submit", async (event) =
     }
 
     const file = fileInput.files[0];
-    statusDiv.textContent = `Uploading metadata for "${file.name}"...`;
 
-    const documentDTO = {
-        fileName: file.name,
-        storagePath: "",
-        fileSize: file.size,
-        uploadedAt: new Date().toISOString()
-    };
+    const formData = new FormData();
+    formData.append("file", file);
+
+    formData.append("fileName", file.name);
+    //formData.append("storagePath", "");
+    formData.append("fileSize", file.size);
+    formData.append("uploadedAt", new Date().toISOString());
+
+    statusDiv.textContent = `Uploading metadata for "${file.name}"...`;
 
     try {
         const response = await fetch("/document", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(documentDTO)
+            body: formData
         });
 
         if (response.ok) {

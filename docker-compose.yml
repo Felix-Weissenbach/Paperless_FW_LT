@@ -13,12 +13,18 @@ services:
       - RabbitMQ__Username=user
       - RabbitMQ__Password=password
       - RabbitMQ__Queue=ocr_queue
+      - Minio__Endpoint=minio:9000
+      - Minio__AccessKey=minio
+      - Minio__SecretKey=minio123
+      - Minio__Bucket=documents
     volumes:
       - ./logs:/logs
     depends_on:
       db:
         condition: service_healthy
       rabbitmq:
+        condition: service_started
+      minio:
         condition: service_started
 
   db:
@@ -76,6 +82,7 @@ services:
     container_name: paperless-ocr-worker
     depends_on:
       - rabbitmq
+      - minio
     environment:
       - RabbitMQ__Host=rabbitmq
       - RabbitMQ__Username=user
@@ -83,7 +90,21 @@ services:
       - RabbitMQ__Queue=ocr_queue
     restart: unless-stopped
 
+  minio:
+    image: minio/minio
+    container_name: paperless-minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+
 volumes:
   db_data:
   rabbitmq_data:
+  minio_data:
     

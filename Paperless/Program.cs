@@ -14,6 +14,10 @@ namespace Paperless
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))); 
             builder.Services.AddScoped<DAL.IDocumentRepository, DAL.DocumentRepository>();
 
+            builder.Services.AddSingleton<Logging.ILoggerWrapper>(sp =>
+                Logging.LoggerFactory.GetLogger());
+            builder.Services.AddSingleton<Storage.IFileStorage, Storage.MinioFileStorage>();
+
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();

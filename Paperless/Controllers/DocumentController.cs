@@ -2,6 +2,7 @@
 using Paperless.DAL;
 using Paperless.Logging;
 using Paperless.Models;
+using Paperless.Storage;
 using RabbitMQ.Client;
 using System.Text;
 
@@ -13,11 +14,13 @@ namespace Paperless.Controllers
     {
         private readonly PaperlessDbContext _context;
         private readonly ILoggerWrapper _logger;
+        private readonly IFileStorage _storage;
 
-        public DocumentController(PaperlessDbContext context)
+        public DocumentController(PaperlessDbContext context, IFileStorage storage, ILoggerWrapper logger)
         {
             _context = context;
-            _logger = Logging.LoggerFactory.GetLogger();
+            _storage = storage;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -28,9 +31,12 @@ namespace Paperless.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] DocumentDTO doc)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> Create([FromForm] DocumentDTO doc, [FromForm] IFormFile file)
         {
-            if(doc == null)
+            if(file == null || file.Length == 0)
+                return BadRequest("File is required.");
+            if (doc == null)
                 return BadRequest("Document data is required.");
 
             if (doc.Id == Guid.Empty)
@@ -48,6 +54,21 @@ namespace Paperless.Controllers
             {
                 _logger.Error($"Database error: {ex.Message}");
                 return StatusCode(500, "Error saving document to the database.");
+            }
+
+            try
+            {
+                await using var stream = file.OpenReadStream();
+                var objectName = newDoc.Id + ".pdf";
+
+                await _storage.UploadFileAsync("documents", objectName, stream);
+
+                _logger.Info($"Uploaded PDF to MinIO: {objectName}");
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"MinIO upload failed: {ex.Message}");
+                return StatusCode(500, "Error uploading file to MinIO.");
             }
 
             // --- Async RabbitMQ section ---
@@ -73,7 +94,7 @@ namespace Paperless.Controllers
                     arguments: null
                 );
 
-                var message = $"New document uploaded: {newDoc.Id}";
+                var message = newDoc.Id.ToString() + ".pdf";
                 var body = Encoding.UTF8.GetBytes(message);
 
                 var props = new BasicProperties { 
