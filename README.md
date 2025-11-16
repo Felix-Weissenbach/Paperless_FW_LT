@@ -74,13 +74,14 @@ docker-compose up --build
 
 ### 3️⃣ Accessing the Services
 
-  Service                  URL
-  ------------------------ ------------------------
-  Frontend                 http://localhost
-  REST API                 http://localhost:8081
-  RabbitMQ Management UI   http://localhost:15672
-  Adminer                  http://localhost:8082
-  MinIO Console            http://localhost:9001
+| Service                | URL                       |
+|------------------------|---------------------------|
+| Frontend               | http://localhost          |
+| REST API               | http://localhost:8081     |
+| RabbitMQ Management UI | http://localhost:15672    |
+| Adminer                | http://localhost:8082     |
+| MinIO Console          | http://localhost:9001     |
+
 
 ## 🧹 Stopping the System
 
