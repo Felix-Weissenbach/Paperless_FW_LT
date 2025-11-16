@@ -88,7 +88,7 @@ namespace Paperless.Controllers
 
                 await channel.QueueDeclareAsync(
                     queue: "ocr_queue",
-                    durable: false,
+                    durable: true,
                     exclusive: false,
                     autoDelete: false,
                     arguments: null

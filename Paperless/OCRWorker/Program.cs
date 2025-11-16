@@ -1,14 +1,33 @@
 ﻿using System;
+using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+
+using Minio;
+using Minio.DataModel.Args;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+
 
 namespace OcrWorker
 {
     public class Program
     {
+        public static class MinioCredentials
+        {
+            public readonly static string Endpoint;
+            public readonly static string AccessKey;
+            public readonly static string SecretKey;
+            static MinioCredentials()
+            {
+                Endpoint = Environment.GetEnvironmentVariable("Minio__Endpoint") ?? "minio:9000";
+                AccessKey = Environment.GetEnvironmentVariable("Minio__AccessKey") ?? "minio";
+                SecretKey = Environment.GetEnvironmentVariable("Minio__SecretKey") ?? "minio123";
+            }
+        }
         public static async Task Main(string[] args)
         {
             Console.WriteLine("OCR Worker starting...");
@@ -27,7 +46,7 @@ namespace OcrWorker
 
             await channel.QueueDeclareAsync(
                 queue: queueName,
-                durable: false,
+                durable: true,
                 exclusive: false,
                 autoDelete: false,
                 arguments: null
@@ -35,20 +54,143 @@ namespace OcrWorker
 
             Console.WriteLine($"Listening for messages on queue: {queueName}");
 
+            await EnsureBucketExists("ocr-results");
+
             var consumer = new AsyncEventingBasicConsumer(channel);
             consumer.ReceivedAsync += async (model, ea) =>
             {
                 var body = ea.Body.ToArray();
-                var message = Encoding.UTF8.GetString(body);
-                Console.WriteLine($"Received message: {message}");
-                await Task.Delay(500); // simulate OCR processing
-                Console.WriteLine("OCR processing complete (simulated).");
+                var pdfName = Encoding.UTF8.GetString(body);
+
+                var pdfPath = await DownloadPdfFromMinio(pdfName);
+                var images = await ConvertPdfToImages(pdfPath);
+                var ocrText = await PerformOcrOnImages(images);
+                await UploadOcrResultToMinio(Path.GetFileNameWithoutExtension(pdfName), ocrText);
+
+                Console.WriteLine($"Processed OCR for {pdfName}");
             };
 
             await channel.BasicConsumeAsync(queue: queueName, autoAck: true, consumer: consumer);
 
             // keep process alive indefinitely
             await Task.Delay(Timeout.Infinite);
+        }
+
+        public static async Task<string> DownloadPdfFromMinio(string objectName)
+        {
+            var minio = new MinioClient()
+                .WithEndpoint(MinioCredentials.Endpoint)
+                .WithCredentials(MinioCredentials.AccessKey, MinioCredentials.SecretKey)
+                .Build();
+
+            var localPath = "/tmp/" + objectName;
+
+            var args = new GetObjectArgs()
+                .WithBucket("documents")
+                .WithObject(objectName)
+                .WithFile(localPath);
+
+            await minio.GetObjectAsync(args);
+
+            Console.WriteLine($"Downloaded {objectName} to {localPath}");
+            return localPath;
+        }
+
+        public static async Task<List<string>> ConvertPdfToImages(string pdfPath)
+        {
+            var outputBase = "/tmp/page";
+            var args = $"-dNOPAUSE -dBATCH -sDEVICE=pngalpha -r300 -sOutputFile={outputBase}%03d.png {pdfPath}";
+
+            var process = new System.Diagnostics.Process
+            {
+                StartInfo = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = "gs",
+                    Arguments = args,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                }
+            };
+
+            process.Start();
+            await process.WaitForExitAsync();
+
+            var images = Directory.GetFiles("/tmp", "page*.png").ToList();
+            Console.WriteLine($"Converted PDF to {images.Count} images.");
+
+            return images;
+        }
+
+        public static async Task<string> PerformOcrOnImages(List<string> imagePaths)
+        {
+            var resultBuilder = new StringBuilder();
+
+            foreach (var image in imagePaths)
+            {
+                var outputTxt = image + ".txt";
+                var process = new System.Diagnostics.Process
+                {
+                    StartInfo = new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = "tesseract",
+                        Arguments = $"{image} {image}",
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true,
+                    }
+                };
+
+                process.Start();
+                await process.WaitForExitAsync();
+
+                resultBuilder.AppendLine(await File.ReadAllTextAsync(outputTxt));
+            }
+
+            Console.WriteLine("Completed OCR on images.");
+
+            return resultBuilder.ToString();
+        }
+
+        public static async Task UploadOcrResultToMinio(string objectName, string ocrText)
+        {
+            Console.WriteLine("Uploading OCR result to MinIO...");
+            var minio = new MinioClient()
+                .WithEndpoint(MinioCredentials.Endpoint)
+                .WithCredentials(MinioCredentials.AccessKey, MinioCredentials.SecretKey)
+                .Build();
+
+            var tempFilePath = "/tmp/" + objectName + ".txt";
+
+            await File.WriteAllTextAsync(tempFilePath, ocrText);
+            Console.WriteLine("OCR result written to temporary file.");
+
+            var args = new PutObjectArgs()
+                .WithBucket("ocr-results")
+                .WithObject(objectName + ".txt")
+                .WithFileName(tempFilePath)
+                .WithContentType("text/plain");
+
+            await minio.PutObjectAsync(args);
+
+            Console.WriteLine($"Uploaded OCR result to MinIO: {objectName}.txt");
+        }
+
+        public static async Task EnsureBucketExists(string bucketName)
+        {
+            var minio = new MinioClient()
+                .WithEndpoint(MinioCredentials.Endpoint)
+                .WithCredentials(MinioCredentials.AccessKey, MinioCredentials.SecretKey)
+                .Build();
+
+            bool found = await minio.BucketExistsAsync(new BucketExistsArgs().WithBucket(bucketName));
+            if (!found)
+            {
+                await minio.MakeBucketAsync(new MakeBucketArgs().WithBucket(bucketName));
+                Console.WriteLine($"Created bucket: {bucketName}");
+            }
         }
     }
 }
