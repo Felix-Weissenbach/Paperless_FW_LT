@@ -19,5 +19,6 @@ namespace Paperless.Models
         public string? StoragePath { get; set; } // might be useful in case of duplicate file names
         public long FileSize { get; set; }
         public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
+        public string? Summary { get; set; } // Generated summary from GenAI
     }
 }

@@ -52,6 +52,17 @@ namespace OcrWorker
                 arguments: null
             );
 
+            var genaiQueue = Environment.GetEnvironmentVariable("RabbitMQ__GenAIQueue") ?? "genai_queue";
+
+            await channel.QueueDeclareAsync(
+                queue: genaiQueue,
+                durable: true,
+                exclusive: false,
+                autoDelete: false,
+                arguments: null
+            );
+
+
             Console.WriteLine($"Listening for messages on queue: {queueName}");
 
             await EnsureBucketExists("ocr-results");
@@ -61,6 +72,7 @@ namespace OcrWorker
             {
                 var body = ea.Body.ToArray();
                 var pdfName = Encoding.UTF8.GetString(body);
+                var documentId = Path.GetFileNameWithoutExtension(pdfName);
 
                 var pdfPath = await DownloadPdfFromMinio(pdfName);
                 var images = await ConvertPdfToImages(pdfPath);
@@ -68,6 +80,25 @@ namespace OcrWorker
                 await UploadOcrResultToMinio(Path.GetFileNameWithoutExtension(pdfName), ocrText);
 
                 Console.WriteLine($"Processed OCR for {pdfName}");
+
+                // --- SEND OCR RESULT TO GENAI WORKER ---
+                var genaiPayload = new
+                {
+                    DocumentId = documentId,
+                    OcrText = ocrText
+                };
+
+                var genaiJson = System.Text.Json.JsonSerializer.Serialize(genaiPayload);
+                var genaiBody = Encoding.UTF8.GetBytes(genaiJson);
+
+                await channel.BasicPublishAsync(
+                    exchange: "",
+                    routingKey: genaiQueue,
+                    body: genaiBody
+                );
+
+                Console.WriteLine($"Sent OCR text to GenAI queue {genaiQueue}");
+
             };
 
             await channel.BasicConsumeAsync(queue: queueName, autoAck: true, consumer: consumer);

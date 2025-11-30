@@ -32,6 +32,13 @@ services.
 -   Stores OCR results back in MinIO
 -   Notifies the REST service
 
+### 🤖 GenAI Worker
+
+-   Listens for OCR-processed text via RabbitMQ
+-   Uses Google Gemini to generate document summaries
+-   Sends summaries back to the REST API
+-   Enables fast previews and smart search
+
 ### 🐇 RabbitMQ
 
 -   Message broker for asynchronous OCR job processing
@@ -52,7 +59,12 @@ services.
 
     Frontend  <-->  REST API  <--> PostgreSQL
                              \
-                              \--> RabbitMQ --> OCR Worker --> MinIO
+                              \--> RabbitMQ
+                                       \
+                                        \--> OCR Worker --> MinIO
+                                                 |
+                                                 v
+                                            GenAI Worker --> REST API --> DB
 
 Each component runs in its own container for full isolation and
 scalability.
@@ -99,6 +111,7 @@ docker-compose down -v
     /Paperless
      ├─ Backend (REST API)
      ├─ OCR Worker
+     ├─ GenAI Worker
      ├─ Frontend
      ├─ docker-compose.yml
      ├─ README.md

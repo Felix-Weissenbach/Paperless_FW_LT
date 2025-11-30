@@ -122,5 +122,36 @@ namespace Paperless.Controllers
 
             return CreatedAtAction(nameof(GetAll), new { id = newDoc.Id }, newDoc);
         }
+
+        [HttpPost("{id}/summary")]
+        public async Task<IActionResult> StoreSummary(Guid id, [FromBody] SummaryDto dto)
+        {
+            if (dto == null || string.IsNullOrWhiteSpace(dto.Summary))
+                return BadRequest("Summary is required.");
+
+            var doc = await _context.Documents.FindAsync(id);
+            if (doc == null)
+                return NotFound($"Document with ID {id} not found.");
+
+            doc.Summary = dto.Summary;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                _logger.Info($"Summary stored for document {id}");
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Database error while storing summary: {ex.Message}");
+                return StatusCode(500, "Could not save summary to database.");
+            }
+
+            return Ok();
+        }
+
+        public class SummaryDto
+        {
+            public string Summary { get; set; } = "";
+        }
     }
 }

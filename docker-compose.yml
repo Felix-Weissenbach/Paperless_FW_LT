@@ -110,6 +110,24 @@ services:
       - minio_data:/data
     command: server /data --console-address ":9001"
 
+  genai-worker:
+    build:
+      context: Paperless/GenAIWorker
+    container_name: paperless-genai-worker
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      rest:
+        condition: service_started
+    environment:
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Username=user
+      - RabbitMQ__Password=password
+      - RabbitMQ__Queue=genai_queue
+      - GenAI__ApiKey=${GENAI_API_KEY}
+      - Rest__BaseUrl=http://rest:8081
+    restart: unless-stopped
+
 volumes:
   db_data:
   rabbitmq_data:
