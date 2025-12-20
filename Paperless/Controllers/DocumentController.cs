@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Paperless.DAL;
+using Paperless.ElasticSearch;
 using Paperless.Logging;
 using Paperless.Models;
 using Paperless.Storage;
@@ -147,6 +148,36 @@ namespace Paperless.Controllers
             }
 
             return Ok();
+        }
+
+        [HttpGet("/search")]
+        public async Task<IActionResult> Search([FromQuery] string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+                return BadRequest("Query parameter is required.");
+
+            var client = ElasticClientFactory.Create();
+
+            var response = await client.SearchAsync<dynamic>(s => s
+                .Indices("documents")
+                .Query(qry => qry
+                    .Match(m => m
+                        .Field("content")
+                        .Query(query)
+                    )
+                )
+            );
+
+            var results = response.Hits
+                .Where(h => h.Source != null)
+                .Select(h => new
+                {
+                    Id = h.Source!.documentId,
+                    FileName = h.Source.fileName
+                });
+
+
+            return Ok(results);
         }
 
         public class SummaryDto

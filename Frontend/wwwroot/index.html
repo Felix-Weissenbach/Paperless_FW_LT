@@ -8,15 +8,30 @@
 <body>
     <h1>Beautiful Paperless Frontend</h1>
 
-    <form id="uploadForm">
-        <input type="file" id="fileInput" name="file" accept=".pdf" required />
-        <button type="submit">Upload Document</button>
-    </form>
+    <button id="toggleViewBtn">Search</button>
 
-    <div id="status"></div>
+    <!-- Upload + List View -->
+    <div id="uploadView">
+        <form id="uploadForm">
+            <input type="file" id="fileInput" name="file" accept=".pdf" required />
+            <button type="submit">Upload Document</button>
+        </form>
 
-    <h2>Current Documents</h2>
-    <div id="documentsList"></div>
+        <div id="status"></div>
+
+        <h2>Current Documents</h2>
+        <div id="documentsList"></div>
+    </div>
+
+    <!-- Search View -->
+    <div id="searchView" style="display: none;">
+        <h2>Search Documents</h2>
+
+        <input type="text" id="searchInput" placeholder="Search OCR content..." />
+        <button id="searchBtn">Search</button>
+
+        <div id="searchResults"></div>
+    </div>
 
     <script src="app.js"></script>
 </body>

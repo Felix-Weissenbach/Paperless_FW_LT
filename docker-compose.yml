@@ -128,8 +128,41 @@ services:
       - Rest__BaseUrl=http://rest:8081
     restart: unless-stopped
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.2
+    container_name: paperless-elasticsearch
+    environment:
+    - discovery.type=single-node
+    - xpack.security.enabled=false
+    - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    - Elastic__Url=http://elasticsearch:9200
+    ports:
+    - "9200:9200"
+    volumes:
+    - es_data:/usr/share/elasticsearch/data
+
+  indexing-worker:
+    build:
+      context: Paperless/IndexingWorker
+    container_name: paperless-indexing-worker
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_started
+    environment:
+    - RabbitMQ__Host=rabbitmq
+    - RabbitMQ__Username=user
+    - RabbitMQ__Password=password
+    - RabbitMQ__Queue=index_queue
+    - Elastic__Url=http://elasticsearch:9200
+    restart: unless-stopped
+
+
+
 volumes:
   db_data:
   rabbitmq_data:
   minio_data:
+  es_data:
     

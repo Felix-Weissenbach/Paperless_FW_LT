@@ -99,6 +99,23 @@ namespace OcrWorker
 
                 Console.WriteLine($"Sent OCR text to GenAI queue {genaiQueue}");
 
+                // --- PUBLISH OCR RESULT TO ELASTICSEARCH INDEXING WORKER ---
+                var payload = new
+                {
+                    DocumentId = documentId,
+                    FileName = pdfName,
+                    OcrText = ocrText
+                };
+
+                var json = System.Text.Json.JsonSerializer.Serialize(payload);
+                await channel.BasicPublishAsync(
+                    exchange: "",
+                    routingKey: "index_queue", // should maybe use an environment variable here too, oh well, maybe later
+                    body: Encoding.UTF8.GetBytes(json)
+                );
+
+                Console.WriteLine($"Published message to indexing queue for document {documentId}");
+
             };
 
             await channel.BasicConsumeAsync(queue: queueName, autoAck: true, consumer: consumer);

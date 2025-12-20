@@ -91,3 +91,58 @@ document.getElementById("uploadForm").addEventListener("submit", async (event) =
         statusDiv.textContent = `Error: ${err.message}`;
     }
 });
+
+document.getElementById("searchBtn").addEventListener("click", async () => {
+    const q = document.getElementById("searchInput").value;
+    const resultDiv = document.getElementById("searchResults");
+
+    if (!q) {
+        resultDiv.textContent = "Please enter a search term.";
+        return;
+    }
+
+    resultDiv.textContent = "Searching...";
+
+    try {
+        const res = await fetch(`/search?q=${encodeURIComponent(q)}`);
+        if (!res.ok) {
+            resultDiv.textContent = "Search failed.";
+            return;
+        }
+
+        const results = await res.json();
+
+        if (results.length === 0) {
+            resultDiv.textContent = "No documents found.";
+            return;
+        }
+
+        const ul = document.createElement("ul");
+        results.forEach(doc => {
+            const li = document.createElement("li");
+            li.textContent = `${doc.fileName} (${doc.id})`;
+            ul.appendChild(li);
+        });
+
+        resultDiv.innerHTML = "";
+        resultDiv.appendChild(ul);
+    } catch (err) {
+        resultDiv.textContent = "Error: " + err.message;
+    }
+});
+
+
+const toggleBtn = document.getElementById("toggleViewBtn");
+const uploadView = document.getElementById("uploadView");
+const searchView = document.getElementById("searchView");
+
+let showingSearch = false;
+
+toggleBtn.addEventListener("click", () => {
+    showingSearch = !showingSearch;
+
+    uploadView.style.display = showingSearch ? "none" : "block";
+    searchView.style.display = showingSearch ? "block" : "none";
+
+    toggleBtn.textContent = showingSearch ? "Upload" : "Search";
+});
