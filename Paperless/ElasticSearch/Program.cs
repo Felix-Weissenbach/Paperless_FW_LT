@@ -52,13 +52,15 @@ namespace Paperless.ElasticSearch
                 }
                 Console.WriteLine($"Indexing document {msg.DocumentId}");
 
-                await client.IndexAsync(new
+                var indexResponse = await client.IndexAsync(new
                 {
                     documentId = msg.DocumentId,
                     fileName = msg.FileName,
                     content = msg.OcrText,
                     createdAt = DateTime.UtcNow
                 }, i => i.Index("documents"));
+
+                Console.WriteLine($"Index response: {indexResponse.IsValidResponse} - {indexResponse.DebugInformation}");
 
                 await channel.BasicAckAsync(ea.DeliveryTag, false);
             };

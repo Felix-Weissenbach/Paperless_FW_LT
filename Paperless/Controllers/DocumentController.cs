@@ -150,35 +150,63 @@ namespace Paperless.Controllers
             return Ok();
         }
 
-        [HttpGet("/search")]
+        [HttpGet("search")]
         public async Task<IActionResult> Search([FromQuery] string query)
         {
+            _logger.Info($"Received search request with query: {query}");
             if (string.IsNullOrWhiteSpace(query))
                 return BadRequest("Query parameter is required.");
 
             var client = ElasticClientFactory.Create();
 
-            var response = await client.SearchAsync<dynamic>(s => s
+            var response = await client.SearchAsync<DocumentSearchResult>(s => s
                 .Indices("documents")
-                .Query(qry => qry
+                .Query(q => q
                     .Match(m => m
-                        .Field("content")
+                        .Field(f => f.Content)
                         .Query(query)
                     )
                 )
             );
 
+            if (!response.IsValidResponse)
+            {
+                _logger.Error($"Elasticsearch search failed: {response.DebugInformation}");
+                return StatusCode(500, "Elasticsearch search failed.");
+            }
+
             var results = response.Hits
                 .Where(h => h.Source != null)
                 .Select(h => new
                 {
-                    Id = h.Source!.documentId,
-                    FileName = h.Source.fileName
-                });
+                    Id = h.Source!.DocumentId,
+                    FileName = h.Source.FileName
+                })
+                .ToList();
 
+            _logger.Info($"Search completed. Found {results.Count} results.");
 
-            return Ok(results);
+            return new JsonResult(results)
+            { 
+                StatusCode = 200,
+                ContentType = "application/json"
+            };
         }
+
+        [HttpGet("download/{id}")]
+        public async Task<IActionResult> Download(Guid id)
+        {
+            var doc = await _context.Documents.FindAsync(id);
+            if (doc == null)
+                return NotFound();
+
+            var fileStream = await _storage.GetFileAsync("documents", doc.Id + ".pdf");
+            if (fileStream == null)
+                return NotFound();
+
+            return File(fileStream, "application/pdf", doc.FileName);
+        }
+
 
         public class SummaryDto
         {

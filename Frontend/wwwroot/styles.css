@@ -27,3 +27,20 @@ input[type="file"] {
 #documentsList th {
     background-color: #f2f2f2; /* light gray header */
 }
+
+/* Table styling */
+#searchResults table {
+    border-collapse: collapse; /* merge borders nicely */
+    width: 100%;
+    margin-top: 10px;
+}
+
+#searchResults th, #searchResults td {
+    border: 1px solid #000; /* black border */
+    padding: 6px 10px;
+    text-align: left;
+}
+
+#searchResults th {
+    background-color: #f2f2f2; /* light gray header */
+}

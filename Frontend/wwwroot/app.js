@@ -104,7 +104,7 @@ document.getElementById("searchBtn").addEventListener("click", async () => {
     resultDiv.textContent = "Searching...";
 
     try {
-        const res = await fetch(`/search?q=${encodeURIComponent(q)}`);
+        const res = await fetch(`/document/search?query=${encodeURIComponent(q)}`);
         if (!res.ok) {
             resultDiv.textContent = "Search failed.";
             return;
@@ -117,15 +117,41 @@ document.getElementById("searchBtn").addEventListener("click", async () => {
             return;
         }
 
-        const ul = document.createElement("ul");
-        results.forEach(doc => {
-            const li = document.createElement("li");
-            li.textContent = `${doc.fileName} (${doc.id})`;
-            ul.appendChild(li);
+        // Create table
+        const table = document.createElement("table");
+        table.className = "search-table";
+
+        // Table header
+        const header = table.insertRow();
+        ["Document Name", "Download"].forEach(text => {
+            const th = document.createElement("th");
+            th.textContent = text;
+            header.appendChild(th);
         });
 
+        // Table rows
+        results.forEach(doc => {
+            const row = table.insertRow();
+
+            // Document Name
+            const nameCell = row.insertCell();
+            nameCell.textContent = doc.fileName;
+
+            // Download Button
+            const downloadCell = row.insertCell();
+            const btn = document.createElement("button");
+            btn.textContent = "Download";
+            btn.addEventListener("click", () => {
+                window.location.href = `/document/download/${doc.id}`;
+            });
+            downloadCell.appendChild(btn);
+        });
+
+
+        // Replace previous content
         resultDiv.innerHTML = "";
-        resultDiv.appendChild(ul);
+        resultDiv.appendChild(table);
+
     } catch (err) {
         resultDiv.textContent = "Error: " + err.message;
     }

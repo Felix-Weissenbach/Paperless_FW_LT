@@ -55,12 +55,17 @@ services.
 
 -   Simple web UI for inspecting the PostgreSQL database
 
+### 🔍 Full-Text Search
+
+-   Enables searching through OCR-processed text and generated summaries
+
 ## 🧩 System Architecture Overview
 
     Frontend  <-->  REST API  <--> PostgreSQL
-                             \
-                              \--> RabbitMQ
-                                       \
+                            \
+                             \                      /--> Elasticsearch
+                              \--> RabbitMQ        /
+                                       \          /
                                         \--> OCR Worker --> MinIO
                                                  |
                                                  v
@@ -92,6 +97,7 @@ docker-compose up --build
 | RabbitMQ Management UI | http://localhost:15672    |
 | Adminer                | http://localhost:8080     |
 | MinIO Console          | http://localhost:9001     |
+| Kibana                 | http://localhost:5601     |
 
 
 ## 🧹 Stopping the System
@@ -112,6 +118,7 @@ docker-compose down -v
      ├─ Backend (REST API)
      ├─ OCR Worker
      ├─ GenAI Worker
+     ├─ Elasticsearch
      ├─ Frontend
      ├─ docker-compose.yml
      ├─ README.md

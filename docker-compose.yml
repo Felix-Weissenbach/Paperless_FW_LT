@@ -129,7 +129,7 @@ services:
     restart: unless-stopped
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.2.3
     container_name: paperless-elasticsearch
     environment:
     - discovery.type=single-node
@@ -158,7 +158,18 @@ services:
     - Elastic__Url=http://elasticsearch:9200
     restart: unless-stopped
 
-
+  kibana:
+    image: docker.elastic.co/kibana/kibana:9.2.3
+    container_name: paperless-kibana
+    ports:
+      - "5601:5601"  # Kibana UI
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      ELASTICSEARCH_USERNAME: "user"
+      ELASTICSEARCH_PASSWORD: "password"
+    depends_on:
+      - elasticsearch
+    restart: unless-stopped
 
 volumes:
   db_data:
