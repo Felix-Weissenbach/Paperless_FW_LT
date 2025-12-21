@@ -143,7 +143,7 @@ services:
 
   indexing-worker:
     build:
-      context: Paperless/IndexingWorker
+      context: Paperless/ElasticSearch
     container_name: paperless-indexing-worker
     depends_on:
       rabbitmq:

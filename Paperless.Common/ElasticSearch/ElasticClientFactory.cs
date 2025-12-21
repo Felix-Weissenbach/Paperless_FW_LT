@@ -1,7 +1,6 @@
 ﻿using Elastic.Clients.Elasticsearch;
-using System;
 
-namespace Paperless.ElasticSearch
+namespace Paperless.Common.ElasticSearch
 {
     public class ElasticClientFactory
     {

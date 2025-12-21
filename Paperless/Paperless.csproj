@@ -31,11 +31,12 @@
 	</ItemGroup>
 
   <ItemGroup>
+    <Folder Include="IndexingWorker\" />
     <Folder Include="Migrations\" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="IndexingWorker\IndexingWorker.csproj" />
+    <None Include="ElasticSearch\IndexingWorker.csproj" />
     <None Include="genaiworker\GenAIWorker.csproj" />
     <None Include="ocrworker\OCRWorker.csproj" />
   </ItemGroup>

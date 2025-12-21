@@ -2,14 +2,16 @@
 using System.Text.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using Paperless.ElasticSearch;
 using Elastic.Clients.Elasticsearch;
 using System;
 using System.Threading.Tasks;
+using System.Threading;
+using Paperless.ElasticSearch;
+using System.Net.Http;
 
 record IndexMessage(Guid DocumentId, string FileName, string OcrText);
 
-namespace Paperless.IndexingWorker
+namespace Paperless.ElasticSearch
 {
     class Program
     {
