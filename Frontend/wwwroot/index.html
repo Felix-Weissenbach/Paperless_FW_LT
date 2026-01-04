@@ -2,35 +2,96 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <title>Paperless Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Paperless</title>
     <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <h1>Beautiful Paperless Frontend</h1>
+    <div class="bg">
+        <main class="app">
+            <!-- Top Bar -->
+            <header class="topbar">
+                <div class="title">
+                    <h1>Paperless</h1>
+                    <p class="sub">Upload, manage and search your documents</p>
+                </div>
 
-    <button id="toggleViewBtn">Search</button>
+                <button id="toggleViewBtn" class="btn btn-ghost" type="button">
+                    Search
+                </button>
+            </header>
 
-    <!-- Upload + List View -->
-    <div id="uploadView">
-        <form id="uploadForm">
-            <input type="file" id="fileInput" name="file" accept=".pdf" required />
-            <button type="submit">Upload Document</button>
-        </form>
+            <!-- Upload + Documents View -->
+            <section id="uploadView" class="panel">
+                <div class="panel-head">
+                    <div>
+                        <h2>Documents</h2>
+                        <p class="muted">Upload files and browse your document library.</p>
+                    </div>
+                </div>
 
-        <div id="status"></div>
+                <form id="uploadForm" class="bar" novalidate>
+                    <div class="file">
+                        <input type="file"
+                               id="fileInput"
+                               name="file"
+                               accept=".pdf"
+                               required />
+                        <label for="fileInput" class="file-ui">
+                            <span class="file-main">Choose file</span>
+                            <span class="file-sub">PDF only</span>
+                        </label>
+                    </div>
 
-        <h2>Current Documents</h2>
-        <div id="documentsList"></div>
-    </div>
+                    <button type="submit" class="btn btn-primary">
+                        Upload
+                    </button>
+                </form>
 
-    <!-- Search View -->
-    <div id="searchView" style="display: none;">
-        <h2>Search Documents</h2>
+                <div id="status" class="status" role="status" aria-live="polite"></div>
 
-        <input type="text" id="searchInput" placeholder="Search OCR content..." />
-        <button id="searchBtn">Search</button>
+                <div class="divider"></div>
 
-        <div id="searchResults"></div>
+                <div class="section-row">
+                    <h3>Current documents</h3>
+                </div>
+
+                <div id="documentsList" class="table-surface"></div>
+            </section>
+
+            <!-- Search View -->
+            <section id="searchView" class="panel" style="display:none;">
+                <div class="panel-head">
+                    <div>
+                        <h2>Search</h2>
+                        <p class="muted">Search text across your documents.</p>
+                    </div>
+                </div>
+
+                <div class="bar">
+                    <input type="text"
+                           id="searchInput"
+                           class="input"
+                           placeholder="Search documents…" />
+                    <button id="searchBtn" class="btn btn-primary" type="button">
+                        Search
+                    </button>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="section-row">
+                    <h3>Results</h3>
+                </div>
+
+                <div id="searchResults" class="table-surface"></div>
+            </section>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <span class="muted"><strong>Paperless</strong> by Felix &amp; Lina</span>
+            </footer>
+        </main>
     </div>
 
     <script src="app.js"></script>
