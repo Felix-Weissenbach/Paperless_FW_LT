@@ -11,10 +11,20 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.env = .env
 		docker-compose.yml = docker-compose.yml
+		integration-test.bat = integration-test.bat
 		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frontend", "Frontend\Frontend.csproj", "{D927AFF3-926D-4DA8-8826-EF4999142E12}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "accesslogs", "accesslogs", "{2BF6F0B3-5BDC-42CA-8512-0BC58BC4E49B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "input", "input", "{29AE34F2-730A-4B29-90B0-E3BB5BEA1A60}"
+	ProjectSection(SolutionItems) = preProject
+		accesslog_2026-01-04.xml = accesslog_2026-01-04.xml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "archive", "archive", "{A3AE9559-5EF1-423E-A5C2-57D6834A0BAB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,6 +47,11 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{2BF6F0B3-5BDC-42CA-8512-0BC58BC4E49B} = {8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}
+		{29AE34F2-730A-4B29-90B0-E3BB5BEA1A60} = {2BF6F0B3-5BDC-42CA-8512-0BC58BC4E49B}
+		{A3AE9559-5EF1-423E-A5C2-57D6834A0BAB} = {2BF6F0B3-5BDC-42CA-8512-0BC58BC4E49B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {31516812-1B91-40D2-960A-A45F4A489A66}

@@ -20,5 +20,6 @@ namespace Paperless.Models
         public long FileSize { get; set; }
         public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
         public string? Summary { get; set; } // Generated summary from GenAI
+        public int DailyAccessCount { get; set; } = 0; // Count of accesses in the last day
     }
 }

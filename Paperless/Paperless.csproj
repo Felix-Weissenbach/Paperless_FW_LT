@@ -36,6 +36,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="accesslogbatch\AccessLogBatch.csproj" />
     <None Include="ElasticSearch\IndexingWorker.csproj" />
     <None Include="genaiworker\GenAIWorker.csproj" />
     <None Include="ocrworker\OCRWorker.csproj" />

@@ -171,6 +171,23 @@ services:
       - elasticsearch
     restart: unless-stopped
 
+  accesslog-batch:
+    build:
+      context: Paperless/AccessLogBatch
+    container_name: paperless-accesslog-batch
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - InputFolder=/input
+      - ArchiveFolder=/archive
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=paperless;Username=postgres;Password=postgres
+    volumes:
+      - ./accesslogs/input:/input
+      - ./accesslogs/archive:/archive
+    restart: "no"
+
+
 volumes:
   db_data:
   rabbitmq_data:

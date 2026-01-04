@@ -112,6 +112,20 @@ Remove volumes:
 docker-compose down -v
 ```
 
+## 🦤 Running Integration Tests
+
+From the project root, run:
+``` bash
+integration-test.bat
+```
+
+or 
+```bash
+integration-test.bat pause
+```
+
+to pause between different test steps.
+
 ## 📂 Project Structure
 
     /Paperless
